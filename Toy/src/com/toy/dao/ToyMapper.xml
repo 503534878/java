@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.toy.dao.ToyMapper">
+	<resultMap type="com.toy.pojo.Toy" id="toy-result">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="price" column="price"/>
+		<result property="createDate" column="create_date"/>
+	</resultMap>
+	
+	<sql id="sort">
+		<choose>
+			<when test= "sort=='name'">
+				order by name
+			</when>
+			<when test="sort=='price'">
+				order by price
+			</when>
+			<when test="sort=='createDate'">
+				order by createDate
+			</when>
+			<otherwise>
+				order by id
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<select id="list" resultMap="toy-result">
+		select ID,NAME,PRICE,CREATEDATE from TOY
+		
+		INNER JOIN (
+		SELECT id FROM toy
+		<where>
+			1=1
+			<if test="name!=null and name!=''">
+				and name like CONCAT('%',#{name},"%") 
+			</if>
+			<!-- <if test="beginDate!=null and endDate!=null">
+				and createDate between #{} and #{}
+			</if>
+			 -->
+		</where>
+		<include refid="sort"/>
+		<choose>
+			<when test="order=='desc'">
+				desc
+			</when>
+			<otherwise>
+				asc
+			</otherwise>
+		</choose>
+		LIMIT #{page},#{rows}
+		 
+		) AS lim USING(id);
+	</select>
+	
+</mapper>
